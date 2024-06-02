@@ -1,6 +1,7 @@
 use data_collector;
 
 fn main() {
-    let client = data_collector::new_client();
-    client.example_req();
+    let mut client = data_collector::new_client(true);
+    // client.example_req();
+    client.authenticate().unwrap();
 }

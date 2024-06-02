@@ -6,6 +6,7 @@ import puppeteer from 'puppeteer';
 
   if (userName == null || password == null) {
     console.log("username or password not provied");
+    process.exitCode = 1
     return
   }
 
