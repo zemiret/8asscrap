@@ -1,5 +1,7 @@
-use std::{arch::x86_64::_mm_cmpord_pd, collections::HashMap, process::Command};
+use core::panic;
+use std::{arch::x86_64::_mm_cmpord_pd, collections::HashMap, io::{stdout, Write}, process::Command};
 
+use curl::easy::Easy;
 use reqwest::header::{HeaderMap, USER_AGENT};
 
 pub struct Client {
@@ -30,6 +32,32 @@ impl Client {
             .await?;
         println!("{resp:#?}");
         Ok(())
+    }
+
+    pub fn curl_user_ascents(
+        &self,
+        user: &str,
+    ) -> Result<HashMap<String, String>, Box<dyn std::error::Error>> {
+        // We get 401 on sid expired or wrong user-agent
+
+        let mut easy = Easy::new();
+        easy.url("https://www.8a.nu/unificationAPI/ascent/v1/web/users/antoni-mleczko/ascents?category=sportclimbing&pageIndex=0&pageSize=1").unwrap();
+        easy.useragent("Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0").unwrap();
+        easy.cookie("connect.sid=s%3AH519MDgMrFtbrlz4ZXr28kw481eeDRXk.tysjm69u%2BUkCxcDrUjIt56H0zItzk%2FN%2BZD%2FhRi3bZRc;").unwrap();
+        easy.write_function(|data| {
+            println!("GOT RES!");
+            Ok(stdout().write(data).unwrap())
+        }).unwrap();
+
+        easy.perform().unwrap();
+
+        let code = easy.response_code().unwrap();
+        if code != 200 {
+            panic!("not 200 status code: {}", code);
+        }
+
+
+        Ok(HashMap::new())
     }
 
     #[tokio::main]
