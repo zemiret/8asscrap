@@ -6,17 +6,33 @@ use reqwest::header::{HeaderMap, USER_AGENT};
 
 pub struct Client {
     http_client: reqwest::Client,
+    auth_cmd_path: String,
     connect_sid: String,
     debug: bool,
 }
 
-pub fn new_client(debug: bool) -> Client {
+pub fn new_client(debug: bool, auth_cmd_path: String) -> Client {
     Client {
         http_client: reqwest::Client::new(),
         // connect_sid: String::new(),
         // TODO: Just for test purposes
         connect_sid: "s%3AH519MDgMrFtbrlz4ZXr28kw481eeDRXk.tysjm69u%2BUkCxcDrUjIt56H0zItzk%2FN%2BZD%2FhRi3bZRc".to_string(),
         debug,
+        auth_cmd_path,
+    }
+}
+
+pub enum ClimbingCategory {
+    SportClimbing,
+    Bouldering,
+}
+
+impl ClimbingCategory {
+    fn url_param(&self) -> &str {
+        match self {
+            &Self::SportClimbing => "sportclimbing",
+            &Self::Bouldering => "bouldering"
+        }
     }
 }
 
@@ -35,10 +51,48 @@ impl Client {
     }
 
     pub fn curl_user_ascents(
-        &self,
+        &mut self,
         user: &str,
-    ) -> Result<HashMap<String, String>, Box<dyn std::error::Error>> {
+        climbing_category: &ClimbingCategory,
+    ) -> Result<Vec<HashMap<String, serde_json::Value>>, Box<dyn std::error::Error>> {
         // We get 401 on sid expired or wrong user-agent
+
+        if self.connect_sid.is_empty() {
+            match self.authenticate() {
+                Ok(()) => (),
+                Err(err) => return Err(err),
+            };
+        }
+
+        let mut res: Vec<HashMap<String, serde_json::Value>> = vec![];
+
+        let mut req_url = format!("https://www.8a.nu/unificationAPI/ascent/v1/web/users/{}/ascents?category={}", user, climbing_category.url_param());
+        append_url_param(&mut req_url, "pageIndex", "0");
+        append_url_param(&mut req_url, "pageSize", "1000");
+        append_url_param(&mut req_url, "sortField", "date_desc");
+        append_url_param(&mut req_url, "includeProjects", "false");
+        append_url_param(&mut req_url, "showRepeats", "false");
+        append_url_param(&mut req_url, "showDuplicates", "false");
+
+        let mut easy = Easy::new();
+        easy.url(&req_url)?;
+        easy.useragent("Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0")?;
+        easy.cookie(&format!("connect.sid={};", self.connect_sid))?;
+
+        // TODO: Handle reauthenticate on 401
+        // TODO: Handle next page
+
+        easy.header_function(|)
+
+        easy.write_function(|data| {
+
+            // TODO: Gather data into a hash map
+
+            println!("GOT RES!");
+            Ok(stdout().write(data).unwrap())
+        })?;
+
+        // ----
 
         let mut easy = Easy::new();
         easy.url("https://www.8a.nu/unificationAPI/ascent/v1/web/users/antoni-mleczko/ascents?category=sportclimbing&pageIndex=0&pageSize=1").unwrap();
@@ -161,11 +215,11 @@ impl Client {
     pub fn authenticate(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         // TODO: Pass in the path to the exporter exec
         let cmdres = Command::new("node")
-            .arg("../../sidexporter/main.mjs")
+            .arg(self.auth_cmd_path.as_str())
             .output()?;
-        let cmd_out = String::from_utf8(cmdres.stdout).unwrap(); // TODO: Handle error nicer
+        let cmd_out = String::from_utf8(cmdres.stdout)?;
         if !cmdres.status.success() {
-            panic!("sideexporter fail: {}", cmd_out); // TODO: HANDLE ERROR NICELY
+            return Err(format!("sideexporter fail: {}", cmd_out))?;
         }
         self.connect_sid = cmd_out.trim().to_string();
         if self.debug {
@@ -173,4 +227,8 @@ impl Client {
         }
         Ok(())
     }
+}
+
+fn append_url_param(url: &mut String, param_name: &str, param_value: &str) {
+    url.push_str(&format!("&{}={}", param_name, param_value))
 }

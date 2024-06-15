@@ -138,6 +138,7 @@ version = "0.1.0"
 dependencies = [
  "curl",
  "reqwest",
+ "serde_json",
  "tokio",
 ]
 
