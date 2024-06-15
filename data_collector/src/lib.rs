@@ -1,8 +1,15 @@
-use core::panic;
-use std::{arch::x86_64::_mm_cmpord_pd, collections::HashMap, io::{stdout, Write}, process::Command};
+use std::{
+    collections::HashMap,
+    io::{stdout, Write},
+    process::Command,
+};
 
+use cookie::Cookie;
+use cookie_store::CookieStore;
 use curl::easy::Easy;
-use reqwest::header::{HeaderMap, USER_AGENT};
+use reqwest::header::HeaderMap;
+use ureq::Error;
+use url::Url;
 
 pub struct Client {
     http_client: reqwest::Client,
@@ -31,7 +38,7 @@ impl ClimbingCategory {
     fn url_param(&self) -> &str {
         match self {
             &Self::SportClimbing => "sportclimbing",
-            &Self::Bouldering => "bouldering"
+            &Self::Bouldering => "bouldering",
         }
     }
 }
@@ -50,6 +57,37 @@ impl Client {
         Ok(())
     }
 
+    pub fn ureq_user_ascents(
+        &mut self,
+        user: &str,
+        climbing_category: &ClimbingCategory,
+    ) -> Result<Vec<HashMap<String, serde_json::Value>>, Box<dyn std::error::Error>> {
+        // IMPORTANT INFO - 401 is no cookie. 403 is .e.g bad User Agent header!
+        // YEEEEEEEY. It's working. Turns out it was about the accept-encoding header lol.
+
+
+        let body = match ureq::get("https://www.8a.nu/unificationAPI/ascent/v1/web/users/antoni-mleczko/ascents?category=sportclimbing&pageIndex=0&pageSize=1")
+        // .set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0")
+        .set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0")
+        .set("Cookie", "connect.sid=s%3AH519MDgMrFtbrlz4ZXr28kw481eeDRXk.tysjm69u%2BUkCxcDrUjIt56H0zItzk%2FN%2BZD%2FhRi3bZRc;")
+        .set("Host", "www.8a.nu")
+        .set("Accept", "*/*")
+        .set("Accept-Encoding", "gzip")
+        .call() {
+            Ok(resp) => {
+                resp.into_string().unwrap()
+                // resp.into_json::<serde_json::Value>().unwrap();
+            },
+            Err(Error::Status(code, resp)) => panic!("{}: {}", code, resp.into_string().unwrap()),
+            Err(e) => panic!("{}", e)
+        };
+
+        println!("{}", body);
+        // println!("{}", serde_json::to_string_pretty(&body).unwrap());
+
+        Ok(vec![HashMap::new()])
+    }
+
     pub fn curl_user_ascents(
         &mut self,
         user: &str,
@@ -57,51 +95,55 @@ impl Client {
     ) -> Result<Vec<HashMap<String, serde_json::Value>>, Box<dyn std::error::Error>> {
         // We get 401 on sid expired or wrong user-agent
 
-        if self.connect_sid.is_empty() {
-            match self.authenticate() {
-                Ok(()) => (),
-                Err(err) => return Err(err),
-            };
-        }
+        // TODO: FCK. It works with curl, but the lib behaves like... curl. It's easy enough to get data and write to stdout, but otherwise working with callbacks for multiple fetches is super annoying.
 
-        let mut res: Vec<HashMap<String, serde_json::Value>> = vec![];
+        // if self.connect_sid.is_empty() {
+        //     match self.authenticate() {
+        //         Ok(()) => (),
+        //         Err(err) => return Err(err),
+        //     };
+        // }
 
-        let mut req_url = format!("https://www.8a.nu/unificationAPI/ascent/v1/web/users/{}/ascents?category={}", user, climbing_category.url_param());
-        append_url_param(&mut req_url, "pageIndex", "0");
-        append_url_param(&mut req_url, "pageSize", "1000");
-        append_url_param(&mut req_url, "sortField", "date_desc");
-        append_url_param(&mut req_url, "includeProjects", "false");
-        append_url_param(&mut req_url, "showRepeats", "false");
-        append_url_param(&mut req_url, "showDuplicates", "false");
+        // let mut res: Vec<HashMap<String, serde_json::Value>> = vec![];
 
-        let mut easy = Easy::new();
-        easy.url(&req_url)?;
-        easy.useragent("Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0")?;
-        easy.cookie(&format!("connect.sid={};", self.connect_sid))?;
+        // let mut req_url = format!("https://www.8a.nu/unificationAPI/ascent/v1/web/users/{}/ascents?category={}", user, climbing_category.url_param());
+        // append_url_param(&mut req_url, "pageIndex", "0");
+        // append_url_param(&mut req_url, "pageSize", "1000");
+        // append_url_param(&mut req_url, "sortField", "date_desc");
+        // append_url_param(&mut req_url, "includeProjects", "false");
+        // append_url_param(&mut req_url, "showRepeats", "false");
+        // append_url_param(&mut req_url, "showDuplicates", "false");
 
-        // TODO: Handle reauthenticate on 401
-        // TODO: Handle next page
+        // let mut easy = Easy::new();
+        // easy.url(&req_url)?;
+        // easy.useragent("Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0")?;
+        // easy.cookie(&format!("connect.sid={};", self.connect_sid))?;
 
-        easy.header_function(|)
+        // // TODO: Handle reauthenticate on 401
+        // // TODO: Handle next page fetching
 
-        easy.write_function(|data| {
+        // // easy.header_function(|)
 
-            // TODO: Gather data into a hash map
+        // easy.write_function(|data| {
 
-            println!("GOT RES!");
-            Ok(stdout().write(data).unwrap())
-        })?;
+        //     // TODO: Gather data into a hash map
+
+        //     println!("GOT RES!");
+        //     Ok(stdout().write(data).unwrap())
+        // })?;
 
         // ----
 
         let mut easy = Easy::new();
         easy.url("https://www.8a.nu/unificationAPI/ascent/v1/web/users/antoni-mleczko/ascents?category=sportclimbing&pageIndex=0&pageSize=1").unwrap();
-        easy.useragent("Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0").unwrap();
+        easy.useragent("Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0")
+            .unwrap();
         easy.cookie("connect.sid=s%3AH519MDgMrFtbrlz4ZXr28kw481eeDRXk.tysjm69u%2BUkCxcDrUjIt56H0zItzk%2FN%2BZD%2FhRi3bZRc;").unwrap();
         easy.write_function(|data| {
             println!("GOT RES!");
             Ok(stdout().write(data).unwrap())
-        }).unwrap();
+        })
+        .unwrap();
 
         easy.perform().unwrap();
 
@@ -110,8 +152,8 @@ impl Client {
             panic!("not 200 status code: {}", code);
         }
 
-
-        Ok(HashMap::new())
+        // Ok(HashMap::new())
+        Ok(vec![HashMap::new()])
     }
 
     #[tokio::main]
@@ -132,13 +174,13 @@ impl Client {
                 "-H",
                 "Cookie: connect.sid=s%3AH519MDgMrFtbrlz4ZXr28kw481eeDRXk.tysjm69u%2BUkCxcDrUjIt56H0zItzk%2FN%2BZD%2FhRi3bZRc;"
             ]);
-            // .args([
-            //     "https://www.8a.nu/unificationAPI/ascent/v1/web/users/antoni-mleczko/ascents?category=sportclimbing&pageIndex=0&pageSize=1",
-            //     "-H",
-            //     "user-ugent: Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
-            //     "-H",
-            //     "cookie: connect.sid=s%3AH519MDgMrFtbrlz4ZXr28kw481eeDRXk.tysjm69u%2BUkCxcDrUjIt56H0zItzk%2FN%2BZD%2FhRi3bZRc;"
-            // ]);
+        // .args([
+        //     "https://www.8a.nu/unificationAPI/ascent/v1/web/users/antoni-mleczko/ascents?category=sportclimbing&pageIndex=0&pageSize=1",
+        //     "-H",
+        //     "user-ugent: Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
+        //     "-H",
+        //     "cookie: connect.sid=s%3AH519MDgMrFtbrlz4ZXr28kw481eeDRXk.tysjm69u%2BUkCxcDrUjIt56H0zItzk%2FN%2BZD%2FhRi3bZRc;"
+        // ]);
         println!("{:#?}", cmd);
         let cmdres = cmd.output()?;
 
@@ -148,15 +190,24 @@ impl Client {
         }
         println!("{}", cmd_out);
 
-
         // TODO: HANDLE PAGING
         // TODO: HANDLE 401 (call authenticate and retry operation)
         // TODO: Bouldering category too
 
         let mut headers = HeaderMap::new();
 
-        headers.insert("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0".parse().unwrap());
-        headers.insert("Cookie", format!("connect.sid={};", self.connect_sid).parse().unwrap());
+        headers.insert(
+            "User-Agent",
+            "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0"
+                .parse()
+                .unwrap(),
+        );
+        headers.insert(
+            "Cookie",
+            format!("connect.sid={};", self.connect_sid)
+                .parse()
+                .unwrap(),
+        );
 
         let req = self
             .http_client
@@ -202,8 +253,8 @@ impl Client {
         //     .header("Cookie", format!("connect.sid={};", self.connect_sid))
         //     .send()
         //     .await?;
-            // .json::<HashMap<String, String>>()
-            // .await?;
+        // .json::<HashMap<String, String>>()
+        // .await?;
 
         // TODO: 403 resp. The question is - Am I doing something wrong here in code or is it the same way I already had it once that it works with curl but not when called from code?
         println!("HELLLOOOOOOOOOO");
