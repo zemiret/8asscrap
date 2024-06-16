@@ -6,5 +6,9 @@ fn main() {
     // client.authenticate("../../sidexporter/main.mjs").unwrap();
     // client.user_ascents("antoni-mleczko").unwrap();
     // client.curl_user_ascents("antoni-mleczko").unwrap();
-    client.ureq_user_ascents("antoni-mleczko", &data_collector::ClimbingCategory::SportClimbing).unwrap();
+    let user_ascents = client.user_ascents("antoni-mleczko", &data_collector::ClimbingCategory::SportClimbing, false).unwrap();
+
+    // let sleep_time_millis = time::Duration::from_millis(200);
+
+    println!("{:?}", user_ascents);
 }
