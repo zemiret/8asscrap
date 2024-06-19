@@ -1,14 +1,193 @@
-use data_collector;
+use std::io::{stdout, Write};
 
-fn main() {
-    let mut client = data_collector::new_client(true, "../../sidexporter/main.mjs".to_string());
-    // client.example_req();
-    // client.authenticate("../../sidexporter/main.mjs").unwrap();
-    // client.user_ascents("antoni-mleczko").unwrap();
-    // client.curl_user_ascents("antoni-mleczko").unwrap();
-    let user_ascents = client.user_ascents("antoni-mleczko", &data_collector::ClimbingCategory::SportClimbing, false).unwrap();
+mod store;
 
-    // let sleep_time_millis = time::Duration::from_millis(200);
+#[tokio::main]
+async fn main() {
+    // let mut client = data_collector::new_client(true, "../../sidexporter/main.mjs".to_string());
+    // client.authenticate().unwrap();
+    // let user_ascents = client.user_ascents("antoni-mleczko", &data_collector::ClimbingCategory::SportClimbing, false).unwrap();
+    // println!("{:?}", user_ascents);
 
-    println!("{:?}", user_ascents);
+    let asc1_str= r#"
+    {
+        "ascentId": 5590446,
+        "platform": "eight_a",
+        "userAvatar": "https://d3byf4kaqtov0k.cloudfront.net/p/gallery/thumb/dokdghsf.webp",
+        "userName": "Antoni Mleczko",
+        "userSlug": "antoni-mleczko",
+        "date": "2020-05-03T00:00:00+00:00",
+        "difficulty": "6a+",
+        "comment": null,
+        "userPrivate": false,
+        "countrySlug": "poland",
+        "countryName": "Poland",
+        "areaSlug": "jura-krakowsko-czestochowska",
+        "areaName": "Jura Krakowsko - Częstochowska",
+        "sectorSlug": "lyse-skaly",
+        "sectorName": "Łyse Skały",
+        "traditional": false,
+        "firstAscent": false,
+        "chipped": false,
+        "withKneepad": false,
+        "badAnchor": false,
+        "badBolts": false,
+        "highFirstBolt": false,
+        "looseRock": false,
+        "badClippingPosition": false,
+        "isHard": false,
+        "isSoft": false,
+        "isBoltedByMe": false,
+        "isOverhang": false,
+        "isVertical": false,
+        "isSlab": false,
+        "isRoof": false,
+        "isAthletic": false,
+        "isEndurance": false,
+        "isCrimpy": false,
+        "isCruxy": false,
+        "isSloper": false,
+        "isTechnical": false,
+        "type": "rp",
+        "repeat": false,
+        "project": false,
+        "rating": 0,
+        "category": 0,
+        "recommended": false,
+        "secondGo": true,
+        "duplicate": false,
+        "isDanger": false,
+        "zlagGradeIndex": 17,
+        "zlaggableName": "Piruet",
+        "zlaggableSlug": "piruet-71d30",
+        "cragSlug": "dolina-szklarki",
+        "cragName": "Dolina Szklarki"
+    }
+    "#;
+
+    let asc2_str = r#"
+    {
+        "ascentId": 5826600,
+        "platform": "eight_a",
+        "userAvatar": "https://d3byf4kaqtov0k.cloudfront.net/p/gallery/thumb/dokdghsf.webp",
+        "userName": "Antoni Mleczko",
+        "userSlug": "antoni-mleczko",
+        "date": "2020-08-30T00:00:00+00:00",
+        "difficulty": "5a",
+        "comment": "",
+        "userPrivate": false,
+        "countrySlug": "poland",
+        "countryName": "Poland",
+        "areaSlug": "jura-krakowsko-czestochowska",
+        "areaName": "Jura Krakowsko - Częstochowska",
+        "sectorSlug": "skala-zachwytu",
+        "sectorName": "Skała Zachwytu",
+        "traditional": false,
+        "firstAscent": false,
+        "chipped": false,
+        "withKneepad": false,
+        "badAnchor": false,
+        "badBolts": false,
+        "highFirstBolt": false,
+        "looseRock": false,
+        "badClippingPosition": false,
+        "isHard": false,
+        "isSoft": false,
+        "isBoltedByMe": false,
+        "isOverhang": false,
+        "isVertical": true,
+        "isSlab": true,
+        "isRoof": false,
+        "isAthletic": false,
+        "isEndurance": false,
+        "isCrimpy": false,
+        "isCruxy": false,
+        "isSloper": false,
+        "isTechnical": false,
+        "type": "os",
+        "repeat": false,
+        "project": false,
+        "rating": 0,
+        "category": 0,
+        "recommended": false,
+        "secondGo": false,
+        "duplicate": false,
+        "isDanger": false,
+        "zlagGradeIndex": 10,
+        "zlaggableName": "Pejzaż Horyzontalny",
+        "zlaggableSlug": "pejzaz-horyzontalny",
+        "cragSlug": "dziurawa-95lxd",
+        "cragName": "Dolina Prądnika"
+    }
+    "#;
+
+    let asc3_str = r#"
+    {
+        "ascentId": 5832108,
+        "platform": "eight_a",
+        "userAvatar": "https://d3byf4kaqtov0k.cloudfront.net/p/gallery/thumb/dokdghsf.webp",
+        "userName": "Antoni Mleczko",
+        "userSlug": "antoni-mleczko",
+        "date": "2020-09-02T00:00:00+00:00",
+        "difficulty": "6a",
+        "comment": "",
+        "userPrivate": false,
+        "countrySlug": "poland",
+        "countryName": "Poland",
+        "areaSlug": "jura-krakowsko-czestochowska",
+        "areaName": "Jura Krakowsko - Częstochowska",
+        "sectorSlug": "witkowe-ptasia-turnia-34e5l",
+        "sectorName": "Witkowe - Ptasia Turnia",
+        "traditional": false,
+        "firstAscent": false,
+        "chipped": false,
+        "withKneepad": false,
+        "badAnchor": false,
+        "badBolts": false,
+        "highFirstBolt": false,
+        "looseRock": false,
+        "badClippingPosition": false,
+        "isHard": false,
+        "isSoft": false,
+        "isBoltedByMe": false,
+        "isOverhang": true,
+        "isVertical": true,
+        "isSlab": true,
+        "isRoof": false,
+        "isAthletic": true,
+        "isEndurance": false,
+        "isCrimpy": false,
+        "isCruxy": false,
+        "isSloper": false,
+        "isTechnical": false,
+        "type": "os",
+        "repeat": false,
+        "project": false,
+        "rating": 5,
+        "category": 0,
+        "recommended": false,
+        "secondGo": false,
+        "duplicate": false,
+        "isDanger": false,
+        "zlagGradeIndex": 16,
+        "zlaggableName": "Ornitopresja",
+        "zlaggableSlug": "ornitopresja",
+        "cragSlug": "dolina-szklarki",
+        "cragName": "Dolina Szklarki"
+    }
+    "#;
+
+    let example_ascents: Vec<serde_json::Value> = vec![
+        serde_json::from_str(asc1_str).unwrap(),
+        serde_json::from_str(asc2_str).unwrap(),
+        serde_json::from_str(asc3_str).unwrap(),
+    ];
+
+    let storage = store::new_mongo("mongodb://root:example@localhost:27017/").await.unwrap();
+
+
+    storage.replace_ascents("antoni-mleczko", example_ascents).await.unwrap();
+    for ascent in storage.get_user_ascents("antoni-mleczko").await.unwrap() {
+        stdout().write(serde_json::to_string_pretty(&ascent).unwrap().as_bytes()).unwrap();
+    }
 }
