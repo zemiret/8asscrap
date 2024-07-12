@@ -5,10 +5,21 @@ mod store;
 #[tokio::main]
 async fn main() {
     // let mut client = data_collector::new_client(true, "../../sidexporter/main.mjs".to_string());
+    // let user_ascents = client.user_ascents("antoni-mleczko", &data_collector::ClimbingCategory::SportClimbing, false).unwrap();
     // client.authenticate().unwrap();
     // let user_ascents = client.user_ascents("antoni-mleczko", &data_collector::ClimbingCategory::SportClimbing, false).unwrap();
     // println!("{:?}", user_ascents);
 
+    // let storage = store::new_mongo("mongodb://root:example@localhost:27017/").await.unwrap();
+    let storage = store::new_mongo("mongodb://root:example@127.0.0.1:27017").await.unwrap();
+
+    // storage.replace_ascents("antoni-mleczko", user_ascents).await.unwrap();
+    for ascent in storage.get_user_ascents("antoni-mleczko").await.unwrap() {
+        stdout().write(serde_json::to_string_pretty(&ascent).unwrap().as_bytes()).unwrap();
+    }
+}
+
+fn example_ascents_static() -> Vec<serde_json::Value> {
     let asc1_str= r#"
     {
         "ascentId": 5590446,
@@ -177,17 +188,9 @@ async fn main() {
     }
     "#;
 
-    let example_ascents: Vec<serde_json::Value> = vec![
+    vec![
         serde_json::from_str(asc1_str).unwrap(),
         serde_json::from_str(asc2_str).unwrap(),
         serde_json::from_str(asc3_str).unwrap(),
-    ];
-
-    let storage = store::new_mongo("mongodb://root:example@localhost:27017/").await.unwrap();
-
-
-    storage.replace_ascents("antoni-mleczko", example_ascents).await.unwrap();
-    for ascent in storage.get_user_ascents("antoni-mleczko").await.unwrap() {
-        stdout().write(serde_json::to_string_pretty(&ascent).unwrap().as_bytes()).unwrap();
-    }
+    ]
 }

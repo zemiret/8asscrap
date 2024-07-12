@@ -15,7 +15,7 @@ pub struct Client {
 pub fn new_client(debug: bool, auth_cmd_path: String) -> Client {
     Client {
         // TODO: Just for test purposes - already authenticated connect token
-        connect_sid: "s%3AH519MDgMrFtbrlz4ZXr28kw481eeDRXk.tysjm69u%2BUkCxcDrUjIt56H0zItzk%2FN%2BZD%2FhRi3bZRc".to_string(),
+        connect_sid: "s%3AK24chLsE9Oyn2V9sI-6ZPxNLTbS8GOuI.EpctyUA5JQ9cTmb3vkFjtwT6xwro93%2BVdbaG3AtkTA8".to_string(),
         // connect_sid: String::new(),
         debug,
         auth_cmd_path,
