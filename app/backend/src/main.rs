@@ -1,9 +1,15 @@
-use std::io::{stdout, Write};
 
+use actix_web::{web::Data, App, HttpServer};
+use api::{ascents_user_last, ascents_user_reload};
+
+mod api;
 mod store;
 
-#[tokio::main]
+#[actix_web::main]
 async fn main() {
+    // TODO: Will have to think about this client here how it should work with the actix framework
+    //          Even though it's limiting, I'd rather just have a single instance of it
+    //          to not get blocked out spamming requests.
     // let mut client = data_collector::new_client(true, "../../sidexporter/main.mjs".to_string());
     // let user_ascents = client.user_ascents("antoni-mleczko", &data_collector::ClimbingCategory::SportClimbing, false).unwrap();
     // client.authenticate().unwrap();
@@ -11,16 +17,33 @@ async fn main() {
     // println!("{:?}", user_ascents);
 
     // let storage = store::new_mongo("mongodb://root:example@localhost:27017/").await.unwrap();
-    let storage = store::new_mongo("mongodb://root:example@127.0.0.1:27017").await.unwrap();
+    let db = store::Mongo::new("mongodb://root:example@127.0.0.1:27017")
+        .await
+        .unwrap();
+    let db_extractor = Data::new(db);
 
     // storage.replace_ascents("antoni-mleczko", user_ascents).await.unwrap();
-    for ascent in storage.get_user_ascents("antoni-mleczko").await.unwrap() {
-        stdout().write(serde_json::to_string_pretty(&ascent).unwrap().as_bytes()).unwrap();
-    }
+    // for ascent in storage.get_user_ascents("antoni-mleczko").await.unwrap() {
+    // stdout()
+    //     .write(serde_json::to_string_pretty(&ascent).unwrap().as_bytes())
+    //     .unwrap();
+    // }
+
+    HttpServer::new(move || {
+        App::new()
+            .app_data(db_extractor.clone()) // TODO: I'm too noob at rust to know how to now use this unneccesary clone
+            .service(ascents_user_last)
+            .service(ascents_user_reload)
+    })
+    .bind(("localhost", 8080))
+    .unwrap()
+    .run()
+    .await
+    .unwrap();
 }
 
 fn example_ascents_static() -> Vec<serde_json::Value> {
-    let asc1_str= r#"
+    let asc1_str = r#"
     {
         "ascentId": 5590446,
         "platform": "eight_a",

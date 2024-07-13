@@ -23,6 +23,11 @@ Basic vizualizations I am thinking of are:
         * a pyarmid from:to dates
         * a pyramid from a given crag/area only
     * compare pyramids (at first can just have multiple tabs open)
+* move redash in under the repo
+* make one-command deployment or sth
+* have envs extracted into a non-public env-file. Things like:
+	* mongo connection string
+	* username, password for running sidexporter
 
 ### DONE 
 
