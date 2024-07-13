@@ -15,9 +15,7 @@ pub struct Client {
 pub fn new_client(debug: bool, auth_cmd_path: String) -> Client {
     Client {
         // TODO: Just for test purposes - already authenticated connect token
-        connect_sid:
-            "s%3AK24chLsE9Oyn2V9sI-6ZPxNLTbS8GOuI.EpctyUA5JQ9cTmb3vkFjtwT6xwro93%2BVdbaG3AtkTA8"
-                .to_string(),
+        connect_sid: "s%3A3rjxmI79HHz-gFcvTjbjNcYjRxEHlSQF.Tc1o%2Bk%2BGM%2FgSJaUedOr7zWSr5%2Bvg%2F7OegDUIOiJr%2BC8".to_string(),
         // connect_sid: String::new(),
         debug,
         auth_cmd_path,
@@ -72,10 +70,7 @@ impl Client {
                             if self.debug {
                                 println!("GET /ascent/{} 401 - break_on_not_authenticated", user);
                             }
-                            return Err(format!(
-                                "GET /ascent/{} break_on_not_authenticated",
-                                user
-                            ))?;
+                            return Err(format!("GET /ascent/{} break_on_not_authenticated", user))?;
                         }
 
                         if self.debug {
@@ -85,15 +80,12 @@ impl Client {
                         self.authenticate()?;
                         // repeat the whole fetch, but authenticated this time, break if we get 401 again
                         return self.user_ascents(user, climbing_category, true);
-                    }
+                    },
                     _ => {
                         if self.debug {
                             println!("GET /ascent/{} unhandled HTTP error code: {}", user, code);
                         }
-                        return Err(format!(
-                            "GET /ascent/{} unhandled HTTP error code: {}",
-                            user, code
-                        ))?;
+                        return Err(format!("GET /ascent/{} unhandled HTTP error code: {}", user, code))?;
                     }
                 },
                 Err(e) => return Err(e)?,
@@ -115,12 +107,7 @@ impl Client {
                         break;
                     }
                 }
-                None => {
-                    return Err(format!(
-                        "GET /ascent/{} - totalItems not found in response body",
-                        user
-                    ))?
-                }
+                None => return Err(format!("GET /ascent/{} - totalItems not found in response body", user))?,
             }
 
             // sleep random 100-500ms between fetching pages as a bot detection caution.

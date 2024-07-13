@@ -12,6 +12,7 @@ pub struct Mongo {
     ascents_col: Collection<serde_json::Value>,
 }
 
+// TODO: For now only sport climbing. Will have to make a separate collection for bouldering
 impl Mongo {
     pub async fn new(connection_str: &str) -> Result<Self, mongodb::error::Error> {
         let client_options = ClientOptions::parse(connection_str).await?;
@@ -83,6 +84,7 @@ impl Mongo {
             .find(
                 doc! { "userSlug": user },
                 FindOptions::builder()
+                    // TODO: Turns out date for the same day is the same. Have to figure out what do they sort by in 2nd order?
                     .sort(doc! { "date": -1 })
                     .limit(Some(i64::from(count)))
                     .build(),
