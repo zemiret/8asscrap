@@ -1,8 +1,4 @@
-use std::{
-    io::{stdout, Write},
-    process::Command,
-    thread, time,
-};
+use std::{process::Command, thread, time};
 
 use rand::Rng;
 use ureq::Error;
@@ -20,8 +16,9 @@ pub struct Client {
 pub fn new_client(debug: bool, auth_cmd_path: String) -> Client {
     Client {
         // TODO: Just for test purposes - already authenticated connect token
-        connect_sid: "s%3A3rjxmI79HHz-gFcvTjbjNcYjRxEHlSQF.Tc1o%2Bk%2BGM%2FgSJaUedOr7zWSr5%2Bvg%2F7OegDUIOiJr%2BC8".to_string(),
-        // connect_sid: String::new(),
+        // connect_sid: "s%3A3rjxmI79HHz-gFcvTjbjNcYjRxEHlSQF.Tc1o%2Bk%2BGM%2FgSJaUedOr7zWSr5%2Bvg%2F7OegDUIOiJr%2BC8"
+            // .to_string(),
+        connect_sid: String::new(),
         debug,
         auth_cmd_path,
     }
@@ -60,8 +57,8 @@ impl Client {
             self.authenticate()?;
         }
 
-        for page_idx in 0..10 {
-            // fetch max 10 * PAGE_SIZE ascents
+        for page_idx in 0..60 {
+            // max 3k ascents fetch. Still a lot :/
             let req_url = self.user_ascents_url(user, climbing_category, &page_idx)?;
             if self.debug {
                 println!("GET /ascents request URL: {}", req_url);
@@ -75,10 +72,7 @@ impl Client {
                             if self.debug {
                                 println!("GET /ascent/{} 401 - break_on_not_authenticated", user);
                             }
-                            return Err(format!(
-                                "GET /ascent/{} break_on_not_authenticated",
-                                user
-                            ))?;
+                            return Err(format!("GET /ascent/{} break_on_not_authenticated", user))?;
                         }
 
                         if self.debug {
@@ -93,10 +87,7 @@ impl Client {
                         if self.debug {
                             println!("GET /ascent/{} unhandled HTTP error code: {}", user, code);
                         }
-                        return Err(format!(
-                            "GET /ascent/{} unhandled HTTP error code: {}",
-                            user, code
-                        ))?;
+                        return Err(format!("GET /ascent/{} unhandled HTTP error code: {}", user, code))?;
                     }
                 },
                 Err(e) => return Err(e)?,
@@ -118,12 +109,7 @@ impl Client {
                         break;
                     }
                 }
-                None => {
-                    return Err(format!(
-                        "GET /ascent/{} - totalItems not found in response body",
-                        user
-                    ))?
-                }
+                None => return Err(format!("GET /ascent/{} - totalItems not found in response body", user))?,
             }
 
             // sleep random interval between fetching pages as a bot detection caution.
@@ -135,9 +121,7 @@ impl Client {
     }
 
     pub fn authenticate(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        let cmdres = Command::new("node")
-            .arg(self.auth_cmd_path.as_str())
-            .output()?;
+        let cmdres = Command::new("node").arg(self.auth_cmd_path.as_str()).output()?;
         let cmd_out = String::from_utf8(cmdres.stdout)?;
         if !cmdres.status.success() {
             return Err(format!("sideexporter fail: {}", cmd_out))?;
@@ -182,10 +166,7 @@ impl Client {
                 "User-Agent",
                 "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
             )
-            .set(
-                "Cookie",
-                format!("connect.sid={};", self.connect_sid).as_str(),
-            )
+            .set("Cookie", format!("connect.sid={};", self.connect_sid).as_str())
             .set("Host", "www.8a.nu")
             .set("Accept", "*/*")
             .set("Accept-Encoding", "gzip")

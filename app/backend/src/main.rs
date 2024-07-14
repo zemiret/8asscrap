@@ -1,4 +1,3 @@
-
 use std::sync::Mutex;
 
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
@@ -11,10 +10,13 @@ mod store;
 async fn main() {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
+    // TODO: pass authenticator path via env variable
+    // TODO: Have username and password supplied via env
     let client = data_collector::new_client(true, "../../sidexporter/main.mjs".to_string());
     let mt = Mutex::new(client);
     let client_extractor = Data::new(mt);
 
+    // TODO: pass config path via env variable
     let db = store::Mongo::new("mongodb://root:example@127.0.0.1:27017")
         .await
         .unwrap();
@@ -26,15 +28,15 @@ async fn main() {
         App::new()
             // Self explanation note: So what happens here with the extractors as far as I understand it.
             // The extractors are shared amongst threads wrapped in Arc.
-            // As for the db_extractor, we have a single instance, but the mongodb's driver handles connection pool internally, 
+            // As for the db_extractor, we have a single instance, but the mongodb's driver handles connection pool internally,
             // so as we're accessing the collection, the connection pool will be used amongsth threads.
             // As for the client_extractor, I want only 1 instance to be used at a time. So:
-            //  1. It is created outside of the closure scope and captured here. 
-            //      Had it been created here, it would be created every time a handler spawns an App instance 
+            //  1. It is created outside of the closure scope and captured here.
+            //      Had it been created here, it would be created every time a handler spawns an App instance
             //     (this closure is a actory function for App instance).
             //  2. It is wrapped in mutex, so only 1 thread is able to access it at a time.
             .app_data(client_extractor.clone())
-            .app_data(db_extractor.clone()) 
+            .app_data(db_extractor.clone())
             .wrap(Logger::default())
             .service(ascents_user)
             .service(ascents_user_last)
