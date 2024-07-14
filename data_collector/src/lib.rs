@@ -1,10 +1,15 @@
-use std::{process::Command, thread, time};
+use std::{
+    io::{stdout, Write},
+    process::Command,
+    thread, time,
+};
 
 use rand::Rng;
 use ureq::Error;
 use url::{ParseError, Url};
 
-const PAGE_SIZE: u64 = 1000;
+// PAGE_SIZE has to be exactly 50 for the results to be returned in correct order. Strange, but it is what it is.
+const PAGE_SIZE: u64 = 50;
 
 pub struct Client {
     auth_cmd_path: String,
@@ -70,7 +75,10 @@ impl Client {
                             if self.debug {
                                 println!("GET /ascent/{} 401 - break_on_not_authenticated", user);
                             }
-                            return Err(format!("GET /ascent/{} break_on_not_authenticated", user))?;
+                            return Err(format!(
+                                "GET /ascent/{} break_on_not_authenticated",
+                                user
+                            ))?;
                         }
 
                         if self.debug {
@@ -80,12 +88,15 @@ impl Client {
                         self.authenticate()?;
                         // repeat the whole fetch, but authenticated this time, break if we get 401 again
                         return self.user_ascents(user, climbing_category, true);
-                    },
+                    }
                     _ => {
                         if self.debug {
                             println!("GET /ascent/{} unhandled HTTP error code: {}", user, code);
                         }
-                        return Err(format!("GET /ascent/{} unhandled HTTP error code: {}", user, code))?;
+                        return Err(format!(
+                            "GET /ascent/{} unhandled HTTP error code: {}",
+                            user, code
+                        ))?;
                     }
                 },
                 Err(e) => return Err(e)?,
@@ -107,10 +118,15 @@ impl Client {
                         break;
                     }
                 }
-                None => return Err(format!("GET /ascent/{} - totalItems not found in response body", user))?,
+                None => {
+                    return Err(format!(
+                        "GET /ascent/{} - totalItems not found in response body",
+                        user
+                    ))?
+                }
             }
 
-            // sleep random 100-500ms between fetching pages as a bot detection caution.
+            // sleep random interval between fetching pages as a bot detection caution.
             let sleep_time_millis = time::Duration::from_millis(rng.gen_range(100..500));
             thread::sleep(sleep_time_millis);
         }
@@ -145,13 +161,17 @@ impl Client {
         ))?;
 
         u.query_pairs_mut()
-            .append_pair("sortField", "date_desc")
-            .append_pair("includeProjects", "false")
-            .append_pair("showRepeats", "false")
-            .append_pair("showDuplicates", "false")
             .append_pair("category", climbing_category.url_param())
+            .append_pair("pageIndex", &page_index.to_string())
             .append_pair("pageSize", &PAGE_SIZE.to_string())
-            .append_pair("pageIndex", &page_index.to_string());
+            .append_pair("sortField", "date_desc")
+            .append_pair("timeFilter", "0")
+            .append_pair("gradeFilter", "0")
+            .append_pair("typeFilter", "")
+            .append_pair("includeProjects", "false")
+            .append_pair("searchQuery", "")
+            .append_pair("showRepeats", "false")
+            .append_pair("showDuplicates", "false");
 
         return Ok(u);
     }

@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use std::{io::{stdout, Write}, sync::Mutex};
 
 use actix_web::{get, post, web::{Data, Path}, HttpResponse, Responder};
 use data_collector::{Client, ClimbingCategory};
@@ -16,6 +16,19 @@ async fn ascents_user_last(db: Data<Mongo>, path: Path<(String,)>) -> impl Respo
         },
         Err(err) => {
             return HttpResponse::InternalServerError().body(format!("db.user_peek_ascents({}): {}", user, err))
+        }
+    }
+}
+
+#[get("/api/v1/ascents/{user}")]
+async fn ascents_user(db: Data<Mongo>, path: Path<(String,)>) -> impl Responder {
+    let user = &path.0;
+    match db.user_get_ascents(user).await {
+        Ok(ascents) => {
+            HttpResponse::Ok().json(ascents)
+        },
+        Err(err) => {
+            return HttpResponse::InternalServerError().body(format!("db.user_get_ascents({}): {}", user, err))
         }
     }
 }

@@ -2,7 +2,7 @@
 use std::sync::Mutex;
 
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
-use api::{ascents_user_last, ascents_user_reload};
+use api::{ascents_user, ascents_user_last, ascents_user_reload};
 
 mod api;
 mod store;
@@ -11,28 +11,32 @@ mod store;
 async fn main() {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    // TODO: Will have to think about this client here how it should work with the actix framework
-    //          Even though it's limiting, I'd rather just have a single instance of it
-    //          to not get blocked out spamming requests.
     let client = data_collector::new_client(true, "../../sidexporter/main.mjs".to_string());
     let mt = Mutex::new(client);
     let client_extractor = Data::new(mt);
-    // let user_ascents = client.user_ascents("antoni-mleczko", &data_collector::ClimbingCategory::SportClimbing, false).unwrap();
-    // client.authenticate().unwrap();
-    // let user_ascents = client.user_ascents("antoni-mleczko", &data_collector::ClimbingCategory::SportClimbing, false).unwrap();
-    // println!("{:?}", user_ascents);
 
     let db = store::Mongo::new("mongodb://root:example@127.0.0.1:27017")
         .await
         .unwrap();
+
     let db_extractor = Data::new(db);
 
+    // TODO: low prio. Possibly move factory definition to api module
     HttpServer::new(move || {
         App::new()
-            // TODO: I'm too noob at rust to know how to not make these unneccesary clones
+            // Self explanation note: So what happens here with the extractors as far as I understand it.
+            // The extractors are shared amongst threads wrapped in Arc.
+            // As for the db_extractor, we have a single instance, but the mongodb's driver handles connection pool internally, 
+            // so as we're accessing the collection, the connection pool will be used amongsth threads.
+            // As for the client_extractor, I want only 1 instance to be used at a time. So:
+            //  1. It is created outside of the closure scope and captured here. 
+            //      Had it been created here, it would be created every time a handler spawns an App instance 
+            //     (this closure is a actory function for App instance).
+            //  2. It is wrapped in mutex, so only 1 thread is able to access it at a time.
             .app_data(client_extractor.clone())
             .app_data(db_extractor.clone()) 
             .wrap(Logger::default())
+            .service(ascents_user)
             .service(ascents_user_last)
             .service(ascents_user_reload)
     })

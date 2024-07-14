@@ -4,6 +4,7 @@ use mongodb::{
     options::{ClientOptions, FindOptions},
     Client, Collection, IndexModel,
 };
+use serde_json::json;
 
 const DB_NAME: &str = "8asscrap";
 const ASCENTS_COLLECTION_NAME: &str = "ascents";
@@ -43,6 +44,14 @@ impl Mongo {
                 None,
             )
             .await?;
+        collection
+            .create_index(
+                IndexModel::builder()
+                    .keys(doc! { "userSlug": 1, "date": -1, "insertionOrder": 1 })
+                    .build(),
+                None,
+            )
+            .await?;
 
         Ok(Mongo {
             ascents_col: collection,
@@ -57,7 +66,19 @@ impl Mongo {
         self.ascents_col
             .delete_many(doc! { "userSlug": user }, None)
             .await?;
-        self.ascents_col.insert_many(ascents, None).await?;
+
+        self.ascents_col
+            .insert_many(
+                // Extend each ascent with the artificial insertionOrder counter to preserve insertion order
+                ascents.clone().iter_mut().enumerate().map(|(c, asc)| {
+                    asc.as_object_mut()
+                        .unwrap()
+                        .insert("insertionOrder".to_string(), json!(c));
+                    json!(asc)
+                }),
+                None,
+            )
+            .await?;
         Ok(())
     }
 
@@ -68,7 +89,9 @@ impl Mongo {
         self.ascents_col
             .find(
                 doc! { "userSlug": user },
-                FindOptions::builder().sort(doc! { "date": -1 }).build(),
+                FindOptions::builder()
+                    .sort(doc! { "date": -1, "insertionOrder": 1 })
+                    .build(),
             )
             .await?
             .try_collect()
@@ -84,8 +107,7 @@ impl Mongo {
             .find(
                 doc! { "userSlug": user },
                 FindOptions::builder()
-                    // TODO: Turns out date for the same day is the same. Have to figure out what do they sort by in 2nd order?
-                    .sort(doc! { "date": -1 })
+                    .sort(doc! { "date": -1, "insertionOrder": 1 })
                     .limit(Some(i64::from(count)))
                     .build(),
             )

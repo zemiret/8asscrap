@@ -9,5 +9,8 @@ dbstart-fg:
 dbstop:
 	docker compose -f docker-compose-db.yml down
 
-run:
+run-once:
 	cargo run .
+
+run:
+	cargo watch -x run
