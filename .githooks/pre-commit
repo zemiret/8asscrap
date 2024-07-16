@@ -1,0 +1,5 @@
+cd app/frontend
+npm run format
+cd ../..
+
+exit 1

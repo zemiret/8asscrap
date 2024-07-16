@@ -41,6 +41,8 @@ Explain what is redash, what's under the hood, what user can do, blablabla
 * have envs extracted into a non-public env-file. Things like:
 	* mongo connection string
 	* username, password for running sidexporter
+* consider if I need any form of auth for the API
+* dark theme? (just because)
 
 ### DONE 
 
