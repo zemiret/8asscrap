@@ -9,8 +9,15 @@ Basic vizualizations I am thinking of are:
 
 # So what do I do now?
 
-DONE * spin up redash and connect it to the db, load db with actual ascents, see what we can get from redash. Maybe it's all we need? If not:
-* FRONTEND idea - page with steps:
+* move redash config in under the repo, spin up redash to be able to redirect to it from the frontend app (or if it's really hard to even start redash (reinstall compose first) locally, then set it up on some server)
+* Write composes to deploy the thing.
+* have envs extracted into a non-public env-file. Things like:
+	* mongo connection string
+	* username, password for running sidexporter
+* get a hold of some server and experiment with deploying.  Expose the beta somewhere
+* style the frontend and explain the  page properly
+
+* WIP FRONTEND idea - page with steps:
 
 1. Paste the logbook URL
 2. Display last ascents I have. Are these not last or there is none? 
@@ -28,23 +35,10 @@ Advanced mode:
 Explain what is redash, what's under the hood, what user can do, blablabla
 <Button to redash instance>
 
-* then think about the api and the webpage that I'd like, sth like:
-    * Display last few ascents and reload only on request (user can have a button to load new ascent)
-        * Only start webdriver on 401/403
-    * CORE Idea - display the pyramid and allow query'ing. Maybe later have some set queries already like:
-        * a pyarmid from:to dates
-        * a pyramid from a given crag/area only
-    * compare pyramids (at first can just have multiple tabs open)
-
-* move redash config in under the repo
-* make one-command deployment or sth
-* have envs extracted into a non-public env-file. Things like:
-	* mongo connection string
-	* username, password for running sidexporter
 * consider if I need any form of auth for the API
-* dark theme? (just because)
 
 ### DONE 
 
 * Have a local DB that'd save the scraped results (mongo?)
     * if we have mongo, then store all ascents in one collection with index on user (and secondary index on date maybe if we'll be querying by that?)
+* spin up redash and connect it to the db, load db with actual ascents, see what we can get from redash. Maybe it's all we need? If not:
