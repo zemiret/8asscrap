@@ -9,11 +9,16 @@ Basic vizualizations I am thinking of are:
 
 # So what do I do now?
 
-* move redash config in under the repo, spin up redash to be able to redirect to it from the frontend app (or if it's really hard to even start redash (reinstall compose first) locally, then set it up on some server)
-* Write composes to deploy the thing.
-* have envs extracted into a non-public env-file. Things like:
-	* mongo connection string
-	* username, password for running sidexporter
+PREP backend for deployment:
+    * have envs extracted into a non-public env-file. Things like:
+        * have config for dev/prod somehow 
+        * mongo connection string
+        * username, password for running sidexporter
+    * move redash config in under the repo, spin up redash to be able to redirect to it from the frontend app (or if it's really hard to even start redash (reinstall compose first) locally, then set it up on some server)
+    * Write composes to deploy the thing.
+PREP frontend for deployment:
+    * learn how to and try to deploy it
+    * when on the server - have mongo user with a password
 * get a hold of some server and experiment with deploying.  Expose the beta somewhere
 * style the frontend and explain the  page properly
 
@@ -36,6 +41,7 @@ Explain what is redash, what's under the hood, what user can do, blablabla
 <Button to redash instance>
 
 * consider if I need any form of auth for the API
+* extend app with bouldering
 
 ### DONE 
 

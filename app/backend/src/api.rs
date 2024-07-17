@@ -5,9 +5,8 @@ use actix_web::{
     web::{Data, Path},
     HttpResponse, Responder,
 };
-use data_collector::{Client, ClimbingCategory};
 
-use crate::store::Mongo;
+use crate::{datacollector::{self, ClimbingCategory}, store::Mongo};
 
 const LAST_ASCENTS_COUNT: u8 = 3;
 
@@ -32,7 +31,7 @@ async fn ascents_user(db: Data<Mongo>, path: Path<(String,)>) -> impl Responder 
 }
 
 #[post("/api/v1/ascents/{user}/reload")]
-async fn ascents_user_reload(path: Path<(String,)>, db: Data<Mongo>, client: Data<Mutex<Client>>) -> impl Responder {
+async fn ascents_user_reload(path: Path<(String,)>, db: Data<Mongo>, client: Data<Mutex<datacollector::Client>>) -> impl Responder {
     let user = &path.0;
 
     // client here is shared across all workers. Might become a big bottleneck.
