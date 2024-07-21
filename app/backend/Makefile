@@ -1,7 +1,8 @@
-.PHONY: dbstart dbstart-fg
+.PHONY: dbstart dbstart-fg dbstop run-once run
 
 dbstart:
-	docker compose -f docker-compose-db.yml up -d
+	cd compose; \
+	docker compose up -d
 
 dbstart-fg:
 	docker compose -f docker-compose-db.yml up
@@ -9,8 +10,6 @@ dbstart-fg:
 dbstop:
 	docker compose -f docker-compose-db.yml down
 
-run-once:
+run:
 	cargo run .
 
-run:
-	cargo watch -x run

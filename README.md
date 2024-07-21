@@ -7,15 +7,17 @@ Basic vizualizations I am thinking of are:
 1. route pyramid
 2. timeline (e.g. breaking into new grade)
 
+
 # So what do I do now?
 
 PREP backend for deployment:
-    * have envs extracted into a non-public env-file. Things like:
-        * have config for dev/prod somehow 
-        * mongo connection string
-        * username, password for running sidexporter
+    * DONE have envs extracted into a non-public env-file:
+        * DONE have config for dev/prod somehow 
     * move redash config in under the repo, spin up redash to be able to redirect to it from the frontend app (or if it's really hard to even start redash (reinstall compose first) locally, then set it up on some server)
+    * TODO: setup redash - need a setup script that generates env and creates postgres-data + could also run the create_db function
+        * try creating a custom network (same as on the other machine, we'll need that anyway for the mongo to run)
     * Write composes to deploy the thing.
+    * extract envs from composes
 PREP frontend for deployment:
     * learn how to and try to deploy it
     * when on the server - have mongo user with a password
@@ -48,3 +50,40 @@ Explain what is redash, what's under the hood, what user can do, blablabla
 * Have a local DB that'd save the scraped results (mongo?)
     * if we have mongo, then store all ascents in one collection with index on user (and secondary index on date maybe if we'll be querying by that?)
 * spin up redash and connect it to the db, load db with actual ascents, see what we can get from redash. Maybe it's all we need? If not:
+
+# Setup
+
+TODO:
+* Genereate redash envs and postgres-data
+* Create .env file 
+
+# Running
+
+## Locally
+
+### Backend
+
+* `source .env_dev` (create environment beforehand if does not exist)
+* Start mongodb and redash in a compose file
+* `make run` or `make run-once`
+
+
+# Notes
+
+## Redash issues
+
+### Postgres service network availability
+
+I was having a hard time setting up redash on my arch machine.
+Redash services could not connect to the postgres service defined in compose. 
+They would not resolve the container's ip.
+
+In fact, the container was not getting any ip (why, I have no idea).
+
+What finally worked was running postgres in a separate compose with a bridge network defined in there,
+and then running redash separately connecting to the same network (with external: true, of course)
+
+Can still try figuring out if it's possible to put that all in one compose file, but if not - hey, it works.
+And it might be able to work in 1 compose in production, the split is more for the dev environment anyway.
+
+Oh well, it works now even in 1 compose. 
