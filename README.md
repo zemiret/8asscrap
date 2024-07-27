@@ -18,6 +18,7 @@ PREP backend for deployment:
         * try creating a custom network (same as on the other machine, we'll need that anyway for the mongo to run)
     * Write composes to deploy the thing.
     * extract envs from composes
+    * Have nginx in front of the server
 PREP frontend for deployment:
     * learn how to and try to deploy it
     * when on the server - have mongo user with a password
@@ -50,22 +51,6 @@ Explain what is redash, what's under the hood, what user can do, blablabla
 * Have a local DB that'd save the scraped results (mongo?)
     * if we have mongo, then store all ascents in one collection with index on user (and secondary index on date maybe if we'll be querying by that?)
 * spin up redash and connect it to the db, load db with actual ascents, see what we can get from redash. Maybe it's all we need? If not:
-
-# Setup
-
-TODO:
-* Genereate redash envs and postgres-data
-* Create .env file 
-
-# Running
-
-## Locally
-
-### Backend
-
-* `source .env_dev` (create environment beforehand if does not exist)
-* Start mongodb and redash in a compose file
-* `make run` or `make run-once`
 
 
 # Notes

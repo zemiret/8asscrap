@@ -1,9 +1,12 @@
+include:
+  - compose-base.yml
+
 x-redash-service: &redash-service
   image: redash/redash:10.1.0.b50633
   depends_on:
     - redis
     - postgres
-  env_file: env
+  env_file: env_compose
   restart: always
   networks:
     - backend  
@@ -43,9 +46,9 @@ services:
       - backend  
   postgres:
     image: pgautoupgrade/pgautoupgrade:latest
-    env_file: env
+    env_file: env_compose
     volumes:
-      - ../redash-data:/var/lib/postgresql/data
+      - ./redash-data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
       - backend  

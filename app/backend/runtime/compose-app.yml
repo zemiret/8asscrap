@@ -1,14 +1,12 @@
+include:
+  - compose-base.yml
+
 services:
   mongo:
     image: mongo
     restart: always
-    env_file: env
+    env_file: env_compose
     ports:
       - "27017:27017"
     networks:
       - backend  
-
-networks:
-  backend:
-    driver: bridge
-    name: backend

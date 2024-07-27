@@ -1,15 +1,53 @@
-.PHONY: dbstart dbstart-fg dbstop run-once run
+.PHONY: runwatch run dbstart dbstart-fg dbstop redashstart redashstart-fg redashstop rundocker rundocker-fg rundocker-stop setup
 
-dbstart:
-	cd compose; \
+setup:
+	cd runtime; \
+	./setup.sh
+	cd ..
+
+# runs the app locally, watches for changes and recompiles
+# (will not work if the current user does not own all the files, even the ignored ones)
+runwatch:
+	cargo watch --ignore 'runtime/**' -x 'run -- --envfile runtime/env_app'
+
+# runs the app locally 
+run:
+	cargo run -- --envfile runtime/env_app
+
+rundocker-fg:
+	cd runtime; \
+	docker compose up
+
+rundocker:
+	cd runtime; \
 	docker compose up -d
 
+rundocker-stop:
+	cd runtime; \
+	docker compose stop
+
+dbstart:
+	cd runtime; \
+	docker compose -f compose-db.yml up -d
+
 dbstart-fg:
-	docker compose -f docker-compose-db.yml up
+	cd runtime; \
+	docker compose -f compose-db.yml up
 
 dbstop:
-	docker compose -f docker-compose-db.yml down
+	cd runtime; \
+	docker compose -f compose-db.yml down
 
-run:
-	cargo run .
+redashstart:
+	cd runtime; \
+	docker compose -f compose-redash.yml up -d
+
+redashstart-fg:
+	cd runtime; \
+	docker compose -f compose-redash.yml up
+
+redashstop:
+	cd runtime; \
+	docker compose -f compose-redash.yml down
+
 

@@ -1,9 +1,8 @@
-data_collector/target
 app/backend/target
-app/backend/compose/env
-app/backend/redash-data 
 
-app/backend/.env*
+app/backend/runtime/env*
+app/backend/runtime/redash-data 
+app/backend/runtime/.env*
 
 node_modules
 

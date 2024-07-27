@@ -1,0 +1,4 @@
+networks:
+  backend:
+    driver: bridge
+    name: backend
