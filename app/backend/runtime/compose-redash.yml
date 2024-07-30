@@ -55,7 +55,7 @@ services:
   nginx:
     image: redash/nginx:latest
     ports:
-      - "80:80"
+      - "9000:80"
     depends_on:
       - server
     links:

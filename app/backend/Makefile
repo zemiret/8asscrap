@@ -1,4 +1,4 @@
-.PHONY: runwatch run dbstart dbstart-fg dbstop redashstart redashstart-fg redashstop rundocker rundocker-fg rundocker-stop setup
+.PHONY: runwatch run dbstart dbstart-fg dbstop redashstart redashstart-fg redashstop rundocker rundocker-fg rundocker-stop setup docker-build
 
 setup:
 	cd runtime; \
@@ -8,11 +8,14 @@ setup:
 # runs the app locally, watches for changes and recompiles
 # (will not work if the current user does not own all the files, even the ignored ones)
 runwatch:
-	cargo watch --ignore 'runtime/**' -x 'run -- --envfile runtime/env_app'
+	cargo watch --ignore 'runtime/**' -x 'run -- --envfile runtime/env_app_local'
 
 # runs the app locally 
 run:
-	cargo run -- --envfile runtime/env_app
+	cargo run -- --envfile runtime/env_app_local
+
+docker-build:
+	docker build -t backend .
 
 rundocker-fg:
 	cd runtime; \

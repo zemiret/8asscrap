@@ -1,6 +1,5 @@
-# TODO: Compose with app service (that would also have nginx in it)
-
 include:
   - compose-base.yml
   - compose-db.yml
   - compose-redash.yml
+  - compose-app.yml

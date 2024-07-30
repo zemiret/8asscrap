@@ -5,7 +5,7 @@ use actix_web::{
     web::Data,
     App, HttpServer,
 };
-use api::{ascents_user, ascents_user_last, ascents_user_reload};
+use api::{ascents_user, ascents_user_last, ascents_user_reload, ping};
 use clap::Parser;
 use envconfig::Envconfig;
 
@@ -95,6 +95,7 @@ async fn main() {
             .app_data(db_extractor.clone())
             .wrap(Logger::default())
             .wrap(DefaultHeaders::new().add(("Access-Control-Allow-Origin", "http://localhost:5173"))) // TODO: Once I have nginx in front, I shouldn't need this anymore
+            .service(ping)
             .service(ascents_user)
             .service(ascents_user_last)
             .service(ascents_user_reload)

@@ -13,12 +13,14 @@ Basic vizualizations I am thinking of are:
 PREP backend for deployment:
     * DONE have envs extracted into a non-public env-file:
         * DONE have config for dev/prod somehow 
-    * move redash config in under the repo, spin up redash to be able to redirect to it from the frontend app (or if it's really hard to even start redash (reinstall compose first) locally, then set it up on some server)
-    * TODO: setup redash - need a setup script that generates env and creates postgres-data + could also run the create_db function
+    * DONE  move redash config in under the repo, spin up redash to be able to redirect to it from the frontend app (or if it's really hard to even start redash (reinstall compose first) locally, then set it up on some server)
+    * DONE: setup redash - need a setup script that generates env and creates postgres-data + could also run the create_db function
         * try creating a custom network (same as on the other machine, we'll need that anyway for the mongo to run)
-    * Write composes to deploy the thing.
-    * extract envs from composes
-    * Have nginx in front of the server
+    * DONE extract envs from composes
+
+    * image definition for the backend app
+        * make the sidexporter wihin the container work
+
 PREP frontend for deployment:
     * learn how to and try to deploy it
     * when on the server - have mongo user with a password

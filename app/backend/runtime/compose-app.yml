@@ -2,11 +2,14 @@ include:
   - compose-base.yml
 
 services:
-  mongo:
-    image: mongo
+  app:
+    image: backend 
     restart: always
-    env_file: env_compose
+    env_file: env_app_docker
+    depends_on:
+      - mongo 
     ports:
-      - "27017:27017"
+      - "8080:8080"
     networks:
       - backend  
+

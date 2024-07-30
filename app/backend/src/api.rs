@@ -10,6 +10,11 @@ use crate::{datacollector::{self, ClimbingCategory}, store::Mongo};
 
 const LAST_ASCENTS_COUNT: u8 = 3;
 
+#[get("/ping")]
+async fn ping() -> impl Responder {
+    HttpResponse::Ok().json("pong")
+}
+
 #[get("/api/v1/ascents/{user}/last")]
 async fn ascents_user_last(db: Data<Mongo>, path: Path<(String,)>) -> impl Responder {
     let user = &path.0;
