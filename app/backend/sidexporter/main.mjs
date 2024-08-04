@@ -1,5 +1,8 @@
-import puppeteer from 'puppeteer';
 import { parseArgs } from 'node:util';
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+
+puppeteer.use(StealthPlugin()); // very important to avoid being detected and make headless work
 
 const options = {
   username: {
@@ -10,9 +13,9 @@ const options = {
     type: 'string',
     short: 'p'
   },
-}
+};
 
-const { values, _ } = parseArgs({ options })
+const { values, _ } = parseArgs({ options });
 const { username, password } = values;
 
 (async () => {
@@ -22,27 +25,28 @@ const { username, password } = values;
     return
   }
 
- // const browser = await puppeteer.launch();
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch();
+//  const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
 
-  // Navigate the page to a URL
   await page.goto('https://www.8a.nu/');
 
-  // Set screen size
   await page.setViewport({ width: 1080, height: 1024 });
   await page.waitForNetworkIdle();
 
   const logInButtonSelector = '.loggedout > .user-links > a:nth-child(1)';
-  await page.waitForSelector(logInButtonSelector, { timeout: 5000 });
+  await page.waitForSelector(logInButtonSelector, { timeout: 10000 });
 
   await Promise.all([
     page.click(logInButtonSelector),
     page.waitForNavigation(),
   ]);
 
-  await page.type('#username', username);
-  await page.type('#password', password);
+  const userInputSelector = '#username';
+  const passwordInputSelector = '#password';
+  await page.type(userInputSelector, username);
+  await page.type(passwordInputSelector, password);
+
   const signInButtonSelector = '#kc-login';
   await page.waitForSelector(signInButtonSelector, { timeout: 5000 });
   await Promise.all([
