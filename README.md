@@ -17,15 +17,16 @@ PREP backend for deployment:
     * DONE: setup redash - need a setup script that generates env and creates postgres-data + could also run the create_db function
         * try creating a custom network (same as on the other machine, we'll need that anyway for the mongo to run)
     * DONE extract envs from composes
-
-    * image definition for the backend app
-        * make the sidexporter wihin the container work
+    * DONE image definition for the backend app
+        * DONE make the sidexporter wihin the container work
 
 PREP frontend for deployment:
     * learn how to and try to deploy it
     * when on the server - have mongo user with a password
 * get a hold of some server and experiment with deploying.  Expose the beta somewhere
 * style the frontend and explain the  page properly
+
+* test deploy
 
 * WIP FRONTEND idea - page with steps:
 

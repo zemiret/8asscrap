@@ -2,8 +2,9 @@
 
 setup:
 	cd runtime; \
-	./setup.sh
-	cd ..
+	./setup.sh \
+	cd .. \
+	$(MAKE) docker-build
 
 # runs the app locally, watches for changes and recompiles
 # (will not work if the current user does not own all the files, even the ignored ones)
