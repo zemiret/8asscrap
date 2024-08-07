@@ -10,7 +10,7 @@ Basic vizualizations I am thinking of are:
 
 # So what do I do now?
 
-PREP backend for deployment:
+* PREP backend for deployment:
     * DONE have envs extracted into a non-public env-file:
         * DONE have config for dev/prod somehow 
     * DONE  move redash config in under the repo, spin up redash to be able to redirect to it from the frontend app (or if it's really hard to even start redash (reinstall compose first) locally, then set it up on some server)
@@ -20,7 +20,7 @@ PREP backend for deployment:
     * DONE image definition for the backend app
         * DONE make the sidexporter wihin the container work
 
-PREP frontend for deployment:
+* PREP frontend for deployment:
     * learn how to and try to deploy it
     * extract env variables per server
     * create readme instructions
@@ -80,3 +80,5 @@ Can still try figuring out if it's possible to put that all in one compose file,
 And it might be able to work in 1 compose in production, the split is more for the dev environment anyway.
 
 Oh well, it works now even in 1 compose. 
+I think it was docker issue with docker forcing some rules in iptables in the network section preventing network connectivity from within the containers somehow. 
+After switching default docker engine to docker desktop it started to work.
