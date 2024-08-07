@@ -22,6 +22,9 @@ PREP backend for deployment:
 
 PREP frontend for deployment:
     * learn how to and try to deploy it
+    * extract env variables per server
+    * create readme instructions
+    * package in docker
     * when on the server - have mongo user with a password
 * get a hold of some server and experiment with deploying.  Expose the beta somewhere
 * style the frontend and explain the  page properly
@@ -48,6 +51,8 @@ Explain what is redash, what's under the hood, what user can do, blablabla
 
 * consider if I need any form of auth for the API
 * extend app with bouldering
+
+* (from sveltekit node adapter docs) You will typically want to compress responses coming from the server. If you are already deploying your server behind a reverse proxy for SSL or load balancing, it typically results in better performance to also handle compression at that layer since Node.js is single-threaded.
 
 ### DONE 
 
