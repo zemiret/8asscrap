@@ -14,6 +14,7 @@ mod datacollector;
 mod store;
 
 #[derive(Envconfig)]
+#[derive(Debug)]
 struct Config {
     #[envconfig(from = "APP_DEBUG", default = "false")]
     debug: bool,
@@ -38,6 +39,9 @@ struct Config {
     sidexporter_username: String,
     #[envconfig(from = "APP_SIDEXPORTER_PASSWORD")]
     sidexporter_password: String,
+
+    #[envconfig(from = "APP_CORS_PATH", default="http://localhost")]
+    cors_path: String,
 }
 
 #[derive(Parser)]
@@ -56,6 +60,10 @@ async fn main() {
         dotenvy::from_filename(filepath).unwrap();
     }
     let config = Config::init_from_env().unwrap();
+    if config.debug {
+        println!("Parsed config: {:#?}", config);
+    }
+
     env_logger::init_from_env(env_logger::Env::new().default_filter_or(config.log_level));
 
     let client = datacollector::Client::new(
@@ -94,7 +102,7 @@ async fn main() {
             .app_data(client_extractor.clone())
             .app_data(db_extractor.clone())
             .wrap(Logger::default())
-            .wrap(DefaultHeaders::new().add(("Access-Control-Allow-Origin", "http://localhost:5173"))) // TODO: local development only. Once I have nginx in front, I shouldn't need this anymore
+            .wrap(DefaultHeaders::new().add(("Access-Control-Allow-Origin", config.cors_path.as_str()))) // TODO: local development only. Once I have nginx in front, I shouldn't need this anymore
             .service(ping)
             .service(ascents_user)
             .service(ascents_user_last)

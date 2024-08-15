@@ -1,0 +1,6 @@
+services:
+  app:
+    image: frontend
+    restart: always
+    ports:
+      - '80:80'

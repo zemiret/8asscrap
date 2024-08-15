@@ -21,13 +21,15 @@ Basic vizualizations I am thinking of are:
         * DONE make the sidexporter wihin the container work
 
 * PREP frontend for deployment:
-    * learn how to and try to deploy it
-    * extract env variables per server
-    * create readme instructions
+    * DONE extract env variables per server
+    * WIP create readme instructions
+    * see if we can get rid of adapter node and use adapter static instead
     * package in docker
+    * learn how to and try to deploy it
     * when on the server - have mongo user with a password
-* get a hold of some server and experiment with deploying.  Expose the beta somewhere
+
 * style the frontend and explain the  page properly
+* get a hold of some server and experiment with deploying.  Expose the beta somewhere
 
 * test deploy
 

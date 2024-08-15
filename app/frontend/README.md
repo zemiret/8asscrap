@@ -21,16 +21,12 @@ npm run dev -- --open
 
 ## Building
 
-To create a production version of your app:
-
-```bash
-npm run build
+```
+npm run dockerbuild
 ```
 
-You can preview the production build with `npm run preview`.
+## Running
 
-To deploy app locally:
-
-```bash
-npm run localprod
+```
+npm run rundocker 
 ```
