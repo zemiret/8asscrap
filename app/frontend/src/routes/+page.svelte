@@ -1,6 +1,7 @@
 <script lang="ts">
-	// TODO: Will have to have dev vs prod different configuration
-	const APIBaseURLV1 = 'http://localhost:8080/api/v1';
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
+
+	const APIBaseURLV1 = PUBLIC_API_BASE_URL;
 
 	interface Ascent {
 		type: 'f' | 'os' | 'rp';
@@ -14,7 +15,8 @@
 	}
 
 	// TODO: Default link just for development - to not have to input it every time
-	let logbookLink: string = 'https://www.8a.nu/user/ania-w/sportclimbing';
+	// let logbookLink: string = 'https://www.8a.nu/user/ania-w/sportclimbing';
+	let logbookLink: string;
 	let username: string | undefined;
 	let getAscentsErrorMsg: string;
 	let reloadAscentsErrorMsg: string;

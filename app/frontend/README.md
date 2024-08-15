@@ -1,5 +1,13 @@
 # Frontend
 
+## Setup
+
+```
+./setup.sh
+```
+
+And adjust the variables in the generated `.env` files.
+
 ## Developing
 
 Once you've installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
@@ -24,11 +32,5 @@ You can preview the production build with `npm run preview`.
 To deploy app locally:
 
 ```bash
-node build
-```
-
-or with a specified port
-
-```bash
-PORT=5173 node build
+npm run localprod
 ```
