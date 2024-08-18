@@ -10,26 +10,12 @@ Basic vizualizations I am thinking of are:
 
 # So what do I do now?
 
-* PREP backend for deployment:
-    * DONE have envs extracted into a non-public env-file:
-        * DONE have config for dev/prod somehow 
-    * DONE  move redash config in under the repo, spin up redash to be able to redirect to it from the frontend app (or if it's really hard to even start redash (reinstall compose first) locally, then set it up on some server)
-    * DONE: setup redash - need a setup script that generates env and creates postgres-data + could also run the create_db function
-        * try creating a custom network (same as on the other machine, we'll need that anyway for the mongo to run)
-    * DONE extract envs from composes
-    * DONE image definition for the backend app
-        * DONE make the sidexporter wihin the container work
 
-* DONE PREP frontend for deployment:
-    * DONE extract env variables per server
-    * DONE create readme instructions
-    * DONE see if we can get rid of adapter node and use adapter static instead
-    * DONE package in docker
-
-* style the frontend and explain the  page properly
+* WIP:style the frontend and explain the  page properly
+    * style the ascents to look like 8a ascents
+    * style the refresh when no ascents in store section
+    * style adv mode section with explanations, etc.
 * get a hold of some server and experiment with deploying.  Expose the beta somewhere
-
-* test deploy
 
 * WIP FRONTEND idea - page with steps:
 
@@ -59,6 +45,22 @@ Explain what is redash, what's under the hood, what user can do, blablabla
 * Have a local DB that'd save the scraped results (mongo?)
     * if we have mongo, then store all ascents in one collection with index on user (and secondary index on date maybe if we'll be querying by that?)
 * spin up redash and connect it to the db, load db with actual ascents, see what we can get from redash. Maybe it's all we need? If not:
+
+* DONE PREP backend for deployment:
+    * DONE have envs extracted into a non-public env-file:
+        * DONE have config for dev/prod somehow 
+    * DONE  move redash config in under the repo, spin up redash to be able to redirect to it from the frontend app (or if it's really hard to even start redash (reinstall compose first) locally, then set it up on some server)
+    * DONE: setup redash - need a setup script that generates env and creates postgres-data + could also run the create_db function
+        * try creating a custom network (same as on the other machine, we'll need that anyway for the mongo to run)
+    * DONE extract envs from composes
+    * DONE image definition for the backend app
+        * DONE make the sidexporter wihin the container work
+
+* DONE PREP frontend for deployment:
+    * DONE extract env variables per server
+    * DONE create readme instructions
+    * DONE see if we can get rid of adapter node and use adapter static instead
+    * DONE package in docker
 
 
 # Notes
