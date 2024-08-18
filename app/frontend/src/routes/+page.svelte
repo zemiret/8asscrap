@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { PUBLIC_API_BASE_URL } from '$env/static/public';
+	import { Heading, P } from 'flowbite-svelte';
 
 	const APIBaseURLV1 = PUBLIC_API_BASE_URL;
 
@@ -79,42 +80,45 @@
 	}
 </script>
 
-<h1>Paste logbook URL</h1>
+<div class="m-8 max-w-40">
+	<Heading tag="h1">Paste logbook URL</Heading>
+	<P>Whatever elo</P>
 
-<input placeholder="https://www.8a.nu/user/adam-ondra/sportclimbing" bind:value={logbookLink} />
-<button type="button" disabled={!logbookLink} on:click={getLastAscents}>Get ascents</button>
-{#if !!getAscentsErrorMsg}
-	<p>{getAscentsErrorMsg}</p>
-{/if}
-
-{#if !(lastAscents === null)}
-	{#if lastAscents.length === 0}
-		<p>Last ascents empty</p>
-		<button type="button" on:click={reloadAscents}>Load ascents</button>
-	{:else}
-		{#each lastAscents as ascent}
-			<p>{ascent.type}</p>
-			<p>{ascent.zlaggableName}</p>
-			<p>{ascent.countryName}</p>
-			<p>{ascent.cragName}</p>
-			<p>{ascent.areaName}</p>
-			<p>{ascent.difficulty}</p>
-			<p>{ascent.comment}</p>
-			<p>{ascent.date}</p>
-		{/each}
-
-		<button type="button" on:click={reloadAscents}>Reload ascents</button>
+	<input placeholder="https://www.8a.nu/user/adam-ondra/sportclimbing" bind:value={logbookLink} />
+	<button type="button" disabled={!logbookLink} on:click={getLastAscents}>Get ascents</button>
+	{#if !!getAscentsErrorMsg}
+		<p>{getAscentsErrorMsg}</p>
 	{/if}
 
-	{#if !!reloadAscentsErrorMsg}
-		<p>{reloadAscentsErrorMsg}</p>
-	{/if}
-{/if}
+	{#if !(lastAscents === null)}
+		{#if lastAscents.length === 0}
+			<p>Last ascents empty</p>
+			<button type="button" on:click={reloadAscents}>Load ascents</button>
+		{:else}
+			{#each lastAscents as ascent}
+				<p>{ascent.type}</p>
+				<p>{ascent.zlaggableName}</p>
+				<p>{ascent.countryName}</p>
+				<p>{ascent.cragName}</p>
+				<p>{ascent.areaName}</p>
+				<p>{ascent.difficulty}</p>
+				<p>{ascent.comment}</p>
+				<p>{ascent.date}</p>
+			{/each}
 
-<!-- Advanced mode -->
-<p>Explanation what we can do with the data here</p>
-<p>And about redash, and about the parts underneath</p>
-<p>And a link to redash</p>
+			<button type="button" on:click={reloadAscents}>Reload ascents</button>
+		{/if}
+
+		{#if !!reloadAscentsErrorMsg}
+			<p>{reloadAscentsErrorMsg}</p>
+		{/if}
+	{/if}
+
+	<!-- Advanced mode -->
+	<p>Explanation what we can do with the data here</p>
+	<p>And about redash, and about the parts underneath</p>
+	<p>And a link to redash</p>
+</div>
 
 <style>
 	input {
