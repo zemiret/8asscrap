@@ -1,20 +1,12 @@
 <script lang="ts">
 	import { PUBLIC_API_BASE_URL } from '$env/static/public';
 	import { Heading, Input, P, Button } from 'flowbite-svelte';
+	import AscentTypeCircle from '$lib/AscentTypeCircle.svelte';
 	import { DownloadSolid, RefreshOutline } from 'flowbite-svelte-icons';
+	import type { Ascent } from '../domain';
+	import AscentRow from '$lib/AscentRow.svelte';
 
 	const APIBaseURLV1 = PUBLIC_API_BASE_URL;
-
-	interface Ascent {
-		type: 'f' | 'os' | 'rp';
-		zlaggableName: string;
-		countryName: String;
-		cragName: string;
-		areaName?: string;
-		difficulty: string;
-		comment?: string;
-		date: Date;
-	}
 
 	// TODO: Default link just for development - to not have to input it every time
 	let logbookLink: string = 'https://www.8a.nu/user/ania-w/sportclimbing';
@@ -26,13 +18,13 @@
 	let lastAscents: Ascent[] | null = [
 		{
 			type: 'os',
-			zlaggableName: 'zlaggableName',
-			countryName: 'countryName',
-			cragName: 'cragName',
-			areaName: 'areaName',
+			zlaggableName: 'Masa krytyczna',
+			countryName: 'Poland',
+			cragName: 'Jura Krakowsko-Częstochowska',
+			areaName: 'Dolina Szklarki',
 			difficulty: '7a+',
 			comment:
-				'commentcommentcomment comment commentcomment commentcommentcomment comment commentcomment commentcommentcomment comment commentcomment commentcommentcomment comment commentcomment',
+				'E-mej-zing! No góra to jest absolutny majstersztyk techniczny. Jak na Prostowaniu Piranii się zachwycałem, to zachwyt dał się ponownie tutaj poczuć. Za to na dole 2 całkiem fajne baldziki. Schowałem godność do kieszeni i wyrestowałem w dziurze z twarzą w pająkach i wypiętym dupskiem, a na wyjście na płytę znalazłem taki patent z lewą, a potem prawą piętą, że wręcz wydał mi się oszukańczy - takie się to to wtedy proste zrobiło. W sumie zawędzone ze 2 razy i 1sza próba na prowadzenie.',
 			date: new Date()
 		},
 		{
@@ -49,7 +41,7 @@
 			countryName: 'countryName',
 			cragName: 'cragName',
 			difficulty: '6a+',
-			date: new Date(8.64e15)
+			date: new Date(8.64e11)
 		}
 	];
 	// let lastAscents: Ascent[] | null = null;
@@ -66,8 +58,7 @@
 
 		username = logbookLink.split('/').at(4);
 		if (username == null) {
-			getAscentsErrorMsg =
-				"Could not extract user name from the URL. Are you sure it's a valid logbook URL?";
+			getAscentsErrorMsg = "Could not extract user name from the URL. Are you sure it's a valid logbook URL?";
 			return;
 		}
 
@@ -106,14 +97,13 @@
 			}
 			lastAscents = await res.json();
 		} catch (err) {
-			getAscentsErrorMsg =
-				"Couldn't fetch user ascents. It looks like a problem on our side. Sorry :|";
+			getAscentsErrorMsg = "Couldn't fetch user ascents. It looks like a problem on our side. Sorry :|";
 			return;
 		}
 	}
 </script>
 
-<div class="max-w-10xl lg:grid lg:grid-cols-12">
+<div class="max-w-10xl xl:grid xl:grid-cols-12">
 	<div class="col-span-3" />
 	<div class="col-span-6">
 		<Heading class="mb-8" tag="h1">Welcome to [figure out a name lol]</Heading>
@@ -148,27 +138,20 @@
 					<p>Last ascents empty</p>
 					<button type="button" on:click={reloadAscents}>Load ascents</button>
 				{:else}
-					<Heading tag="h5" class="mb-2">These are the last ascents of that user I know of:</Heading
-					>
+					<Heading tag="h5" class="mb-4">These are the last ascents of {username} I know of:</Heading>
 
-					{#each lastAscents as ascent}
-						<div class="grid grid-cols-12">
-							<!-- TODO: Style the ascents to look like 8a.nu ascents -->
-						</div>
-
-						<p>{ascent.type}</p>
-						<p>{ascent.zlaggableName}</p>
-						<p>{ascent.countryName}</p>
-						<p>{ascent.cragName}</p>
-						<p>{ascent.areaName}</p>
-						<p>{ascent.difficulty}</p>
-						<p>{ascent.comment}</p>
-						<p>{ascent.date}</p>
-					{/each}
+					<div class="mb-4">
+						{#each lastAscents as ascent}
+							<AscentRow {ascent} />
+						{/each}
+					</div>
 
 					<!-- TODO: Make these die by side and pimp up the button -->
-					<P class="my-2">Not the newest?</P>
-					<Button on:click={reloadAscents} outline><RefreshOutline />Refresh ascents</Button>
+
+					<div class="flex">
+						<P class="self-center">Not the newest?</P>
+						<Button class="ml-4" on:click={reloadAscents} outline><RefreshOutline />Refresh ascents</Button>
+					</div>
 				{/if}
 
 				{#if !!reloadAscentsErrorMsg}
@@ -177,16 +160,13 @@
 			{/if}
 		</div>
 
-		<!-- TODO: Advanced mode -->
-		<p>Explanation what we can do with the data here</p>
-		<p>And about redash, and about the parts underneath</p>
-		<p>And a link to redash</p>
+		<div class="mb-4">
+			<Heading tag="h4" class="mb-2">3. Experiment with the data</Heading>
+			<!-- TODO: Advanced mode -->
+			<p>Explanation what we can do with the data here</p>
+			<p>And about redash, and about the parts underneath</p>
+			<p>And a link to redash</p>
+		</div>
 	</div>
 	<div class="col-span-3" />
 </div>
-
-<style>
-	input {
-		width: 100%;
-	}
-</style>
