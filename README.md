@@ -8,6 +8,9 @@ Basic vizualizations I am thinking of are:
 2. timeline (e.g. breaking into new grade)
 
 
+Another module could be route specific - we could see the traffic it gets across all days (of the week as well, not only split per month)
+
+
 # So what do I do now?
 
 
